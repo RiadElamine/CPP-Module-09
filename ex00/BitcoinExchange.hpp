@@ -6,7 +6,7 @@
 /*   By: relamine <relamine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/27 09:35:23 by relamine          #+#    #+#             */
-/*   Updated: 2025/06/28 23:39:49 by relamine         ###   ########.fr       */
+/*   Updated: 2025/06/30 23:26:05 by relamine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <sstream>
 #include <ctime>
 #include <cstdlib>
+#include <limits>
 
 class BitcoinExchange
 {

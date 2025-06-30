@@ -6,7 +6,7 @@
 /*   By: relamine <relamine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/27 09:57:02 by relamine          #+#    #+#             */
-/*   Updated: 2025/06/28 21:18:45 by relamine         ###   ########.fr       */
+/*   Updated: 2025/06/30 22:50:53 by relamine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,17 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    BitcoinExchange exchange;
-    exchange.displayExchangeRates(argv[1]);
+    try
+    {
+        BitcoinExchange exchange;
+    
+        exchange.displayExchangeRates(argv[1]);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
 
     return 0;
 }

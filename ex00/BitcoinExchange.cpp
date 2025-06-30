@@ -6,7 +6,7 @@
 /*   By: relamine <relamine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/27 09:35:42 by relamine          #+#    #+#             */
-/*   Updated: 2025/06/29 00:25:53 by relamine         ###   ########.fr       */
+/*   Updated: 2025/06/30 23:40:50 by relamine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,12 @@ void BitcoinExchange::parseDateTime(const char* datetimeString, const char* form
     if (c == NULL || *c != '\0') {
         throw std::invalid_argument("Invalid date format for date: " + std::string(datetimeString));
     }
+
+    char buffer[11];
+    if (strftime(buffer, sizeof(buffer), "%Y-%m-%d", &tmStruct) == 0) {
+        throw std::invalid_argument("Failed to format date: " + std::string(datetimeString));
+    }
+    std::cout << "Parsed date: " << buffer << "," << std::endl;
 }
 
 bool BitcoinExchange::has_whitespace(const std::string& s) {
@@ -63,25 +69,15 @@ void BitcoinExchange::validateHeaderLine(const std::string& filename, std::ifstr
     }
 
     std::stringstream ss;
-    // ss >> std::noskipws;
     std::string t;
     ss << line;
-    ss >> t;
-    std::cout << "Header line: " << t << std::endl;
-     std::string date;
-     std::string exchange_rate;;
-    if (!std::getline(ss, date, delimiter) ||
-    !(ss >> exchange_rate))
-    {
+
+    std::string date;
+    std::string exchange_rate;
+    if (!std::getline(ss, date, delimiter) || date != Fieldate ||
+    !(getline(ss, exchange_rate)) || exchange_rate != Fieldvalue) {
         throw std::invalid_argument("Invalid header in file or could not read header: " + filename);
     }
-
-    // std::string date;
-    // std::string exchange_rate;
-    // if (!std::getline(ss, date, delimiter) || date != Fieldate ||
-    // !(ss >> exchange_rate) || exchange_rate != Fieldvalue || !ss.eof()) {
-    //     throw std::invalid_argument("Invalid header in file or could not read header: " + filename);
-    // }
 }
 
 
@@ -129,38 +125,45 @@ void BitcoinExchange::displayExchangeRates(const std::string &filename)
     std::stringstream   ss;
     std::string         line;
 
-    // try
-    // {
-    //     /* code */
-    //     validateHeaderLine(filename, file, '|', "date ", " value");
-    // }
-    // catch(const std::exception& e)
-    // {
-    //     std::cerr << e.what() << '\n';
-    // }
+    try
+    {
+        validateHeaderLine(filename, file, '|', "date ", " value");
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
     
-
-    // for (; std::getline(file, line); )
-    // {
-    //     ss.clear();
-    //     ss.str("");
-    //     ss << line;
-    //     ss >> std::noskipws;
+    for (; std::getline(file, line); )
+    {
+        ss.clear();
+        ss.str("");
+        ss << line;
+        ss >> std::noskipws;
+        char space;
         
-    //     std::string date;
-    //     double exchange_rate;
+        std::string date;
+        double exchange_rate;
 
-    //     if (std::getline(ss, date, ',') && !has_whitespace(date) && ss >> exchange_rate && ss.eof())
-    //     {
-    //         if (exchange_rate < 0)
-    //             throw std::invalid_argument("Negative exchange rate not allowed" + date);
-    //         parseDateTime(date.c_str(), "%Y-%m-%d");
-    //         exchangeRates[date] = exchange_rate;
-    //     }
-    //     else
-    //     {
-    //         throw std::invalid_argument("Invalid line format in file: " + filename + " / " + line);
-    //     }
-    // }
+        if (std::getline(ss, date, '|') && ss >> space && ss >> exchange_rate && ss.eof())
+        {
+            if (exchange_rate < 0)
+            {
+                std::cerr << "Error: not a positive number." << date << std::endl;
+                continue;
+            }
+            if (exchange_rate > std::numeric_limits<int>::max())
+            {
+                std::cerr << "Error: too large a number." << std::endl;
+                continue;
+            }
+            parseDateTime(date.c_str(), "%Y-%m-%d");
+            exchangeRates[date] = exchange_rate;
+        }
+        else
+        {
+            throw std::invalid_argument("Invalid line format in file: " + filename + " / " + line);
+        }
+    }
 }
     
