@@ -6,7 +6,7 @@
 /*   By: relamine <relamine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/27 09:35:42 by relamine          #+#    #+#             */
-/*   Updated: 2025/06/30 23:40:50 by relamine         ###   ########.fr       */
+/*   Updated: 2025/06/30 23:52:16 by relamine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ BitcoinExchange &BitcoinExchange::operator=(const BitcoinExchange &other) {
 BitcoinExchange::~BitcoinExchange() {}
 
 
-void BitcoinExchange::parseDateTime(const char* datetimeString, const char* format)
+void BitcoinExchange::parseDateTime(const char* datetimeString, const char* format, bool checkFormat)
 {
     struct tm tmStruct;
     char *c = strptime(datetimeString, format, &tmStruct);
@@ -43,11 +43,19 @@ void BitcoinExchange::parseDateTime(const char* datetimeString, const char* form
         throw std::invalid_argument("Invalid date format for date: " + std::string(datetimeString));
     }
 
-    char buffer[11];
-    if (strftime(buffer, sizeof(buffer), "%Y-%m-%d", &tmStruct) == 0) {
-        throw std::invalid_argument("Failed to format date: " + std::string(datetimeString));
+    
+    if (checkFormat) {
+        char buffer[12];
+        if (strftime(buffer, sizeof(buffer), "%Y-%m-%d", &tmStruct) == 0) {
+            throw std::invalid_argument("Failed to format date: " + std::string(datetimeString));
+        }
+        buffer[10] = ' ';
+        buffer[11] = '\0';
+        std::string t = buffer;
+        if (t != std::string(datetimeString)) {
+            throw std::invalid_argument("Date does not match format: " + std::string(datetimeString) + ",");
+        }
     }
-    std::cout << "Parsed date: " << buffer << "," << std::endl;
 }
 
 bool BitcoinExchange::has_whitespace(const std::string& s) {
@@ -157,7 +165,7 @@ void BitcoinExchange::displayExchangeRates(const std::string &filename)
                 std::cerr << "Error: too large a number." << std::endl;
                 continue;
             }
-            parseDateTime(date.c_str(), "%Y-%m-%d");
+            parseDateTime(date.c_str(), "%Y-%m-%d ", true);
             exchangeRates[date] = exchange_rate;
         }
         else
