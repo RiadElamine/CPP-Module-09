@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BitcoinExchange.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: relamine <relamine@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/27 09:35:42 by relamine          #+#    #+#             */
-/*   Updated: 2025/06/30 23:52:16 by relamine         ###   ########.fr       */
+/*   Updated: 2025/07/01 13:51:35 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,12 +165,37 @@ void BitcoinExchange::displayExchangeRates(const std::string &filename)
                 std::cerr << "Error: too large a number." << std::endl;
                 continue;
             }
-            parseDateTime(date.c_str(), "%Y-%m-%d ", true);
-            exchangeRates[date] = exchange_rate;
+            try 
+            {
+                parseDateTime(date.c_str(), "%Y-%m-%d ", true);
+                date.erase(date.length() - 1);
+                std::map<std::string, double>::iterator it = exchangeRates.lower_bound(date);
+                if (it->first == date)
+                {
+                    std::cout << date << " => " << exchange_rate << " = " 
+                        << exchange_rate * it->second << std::endl;
+                }
+                else if (it == exchangeRates.begin())
+                {
+                    std::cerr << "Error: no exchange rate found for date: " << date << std::endl;
+                }
+                else
+                {
+                    --it;
+                    std::cout << date << " => " << exchange_rate << " = " 
+                        << exchange_rate * it->second << std::endl;
+                }
+            }
+            catch (const std::invalid_argument &e)
+            {
+                std::cerr << "Error: bad input => " << line << std::endl;
+                continue;
+            }
         }
         else
         {
-            throw std::invalid_argument("Invalid line format in file: " + filename + " / " + line);
+            std::cerr << "Error: bad input => " << line << std::endl;
+            continue;
         }
     }
 }
