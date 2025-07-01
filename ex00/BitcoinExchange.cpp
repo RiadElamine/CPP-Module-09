@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/27 09:35:42 by relamine          #+#    #+#             */
-/*   Updated: 2025/07/01 13:51:35 by marvin           ###   ########.fr       */
+/*   Updated: 2025/07/01 21:20:45 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,12 +37,20 @@ BitcoinExchange::~BitcoinExchange() {}
 
 void BitcoinExchange::parseDateTime(const char* datetimeString, const char* format, bool checkFormat)
 {
-    struct tm tmStruct;
+    std::tm tmStruct = {};
     char *c = strptime(datetimeString, format, &tmStruct);
     if (c == NULL || *c != '\0') {
         throw std::invalid_argument("Invalid date format for date: " + std::string(datetimeString));
     }
 
+    tmStruct.tm_isdst = -1;
+    struct tm norm_data = tmStruct;
+    if (mktime(&norm_data) == -1 ||
+        norm_data.tm_year != tmStruct.tm_year ||
+        norm_data.tm_mon != tmStruct.tm_mon ||
+        norm_data.tm_mday != tmStruct.tm_mday) {
+        throw std::invalid_argument("Invalid date for date: " + std::string(datetimeString));
+    }
     
     if (checkFormat) {
         char buffer[12];
@@ -157,7 +165,7 @@ void BitcoinExchange::displayExchangeRates(const std::string &filename)
         {
             if (exchange_rate < 0)
             {
-                std::cerr << "Error: not a positive number." << date << std::endl;
+                std::cerr << "Error: not a positive number." << std::endl;
                 continue;
             }
             if (exchange_rate > std::numeric_limits<int>::max())
