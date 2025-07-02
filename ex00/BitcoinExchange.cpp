@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/27 09:35:42 by relamine          #+#    #+#             */
-/*   Updated: 2025/07/01 21:20:45 by marvin           ###   ########.fr       */
+/*   Updated: 2025/07/02 11:01:31 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,6 +152,8 @@ void BitcoinExchange::displayExchangeRates(const std::string &filename)
     
     for (; std::getline(file, line); )
     {
+        if (line.empty())
+            continue;
         ss.clear();
         ss.str("");
         ss << line;
