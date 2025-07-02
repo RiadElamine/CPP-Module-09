@@ -32,6 +32,9 @@ int RPN::Calcule(const std::string& expression) {
     std::stringstream ss;
     std::string expr;
 
+    if (expression.empty()) {
+        throw std::invalid_argument("Expression is empty");
+    }
     addSpacesWithStream(expression, ss);
     while (ss >> expr)
     {
