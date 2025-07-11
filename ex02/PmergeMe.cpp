@@ -4,14 +4,15 @@
 PmergeMe::PmergeMe() {}
 PmergeMe::~PmergeMe() {}
 
-// step 1: Parse the input arguments and group the elements into pairs and fill the vector and list
-void PmergeMe::groupElementsIntoPairs(int argc, char* argv[])
-{
+
+void PmergeMe::parsingError(int argc, char* argv[]) {
+    
     if (argc < 2) {
         throw std::invalid_argument("At least one argument is required for sorting.");
     }
 
     for (int i = 1; i < argc; ++i) {
+    
         std::stringstream ss(argv[i]);
         int value;
 
@@ -19,35 +20,40 @@ void PmergeMe::groupElementsIntoPairs(int argc, char* argv[])
             throw std::invalid_argument("Invalid argument: " + std::string(argv[i]));
         }
 
-        if (i % 2 != 0) {
-            _vector.push_back(std::make_pair(value, -1));
-            _deque.push_back(std::make_pair(value, -1));
-        }
-        else {
-            _vector.back().second = value;
-            _deque.back().second = value;
+        _vectorMain.push_back(value);
+        _dequeMain.push_back(value);
+    }
+}
+
+// step 1: Parse the input arguments and group the elements into pairs and fill the vector and list
+template <typename Container, typename SContainer>
+void PmergeMe::groupElementsIntoPairs(Container& container, SContainer& _scontainerMain)
+{
+    int size = _scontainerMain.size();
+    for (int i = 0; i < size; ++i) {
+        if (i % 2 == 0) {
+            container.push_back(std::make_pair(_scontainerMain[i], -1));
+        } else {
+            container.back().second = _scontainerMain[i];
         }
     }
 
     waitnum = -1;
-    if (_vector.back().second == -1) {
-        waitnum = _vector.back().first;
-        _vector.pop_back();
-        _deque.pop_back();
+    if (container.back().second == -1) {
+        waitnum = container.back().first;
+        container.pop_back();
     }
 
+    _scontainerMain.clear();
 }
+
 
 void PmergeMe::printUnsortedValues() const {
     std::cout << "Before:  ";
-    for (std::vector<std::pair<int, int> >::const_iterator it = _vector.begin(); it != _vector.end(); ++it) {
-            std::cout << it->first << " " << it->second << " ";
+    for (std::vector<int >::const_iterator it = _vectorMain.begin(); it != _vectorMain.end(); ++it) {
+            std::cout << *it << " ";
     }
-    if (waitnum != -1) {
-        std::cout << waitnum;
-    }
-    std::cout << std::endl;
-    
+    std::cout << std::endl;   
 }
 
 
@@ -123,49 +129,130 @@ void PmergeMe::splitContainer(Container& container, SContainer& mainContainer, S
             mainContainer.push_back(it->first);
             pendingContainer.push_back(it->second);
     }
+    container.clear();
 }
 
-void PmergeMe::sortVector() {
+// step 5: generate Jacobsthal index for insertion order
+int PmergeMe::generateJacobsthalIndex(int n)
+{
+    if (n == 0) return 0;
+    if (n == 1) return 1;
+    return generateJacobsthalIndex(n - 1) + 2 * generateJacobsthalIndex(n - 2);
+}
+
+// step 6: insert the elements in the main container in the order of Jacobsthal Sequence
+template <typename Container>
+void PmergeMe::insertElement(Container& mainContainer, Container& pendingContainer) {
+    
+    int n = pendingContainer.size();
+    int k = 0;
+    int i = 2;
+    while (1)
+    {
+        // step 5: Generate the Jacobsthal index for the current element
+        int index = generateJacobsthalIndex(i);
+        if (index >= n) {
+            index = n - 1;
+        }
+        // step 6: Insert the element at the Jacobsthal index
+        for (int j = index; j >= k; --j) {
+            typename Container::iterator it = lower_bound(mainContainer.begin(), mainContainer.end(), pendingContainer[j]);
+            if (it != mainContainer.end()) {
+                mainContainer.insert(it, pendingContainer[j]);
+            }
+            else {
+                mainContainer.push_back(pendingContainer[j]);
+            }
+        }
+        k = index + 1;
+        i++;
+        if (index == n - 1) break;
+    }
+
+}
+
+// step 7 : add remaining element if exists
+template <typename Container>
+void PmergeMe::addRemainingElement(Container& mainContainer) {
+    
+    if (waitnum != -1) {
+        
+        typename Container::iterator it = lower_bound(mainContainer.begin(), mainContainer.end(), waitnum);
+        if (it != mainContainer.end()) {
+            mainContainer.insert(it, waitnum);
+        } else {
+            mainContainer.push_back(waitnum);
+        }
+    }
+}
+
+//step 8: Print the time taken to sort the elements
+template <typename Container>
+void PmergeMe::printtime(const Container& container) const {
+    double time_taken = (static_cast<double>(end - start) / static_cast<double>(CLOCKS_PER_SEC)) * 100000.0 ; 
+    std::string container_type = std::string(typeid(container).name()).find("vector") != std::string::npos ? "vector" : "deque";
+    std::cout << "Time to process a range of " << container.size() << " elements with std::"
+                << container_type
+                << " " << std::fixed << time_taken << " us" << std::endl;
+}
+
+template <typename Container, typename SContainer>
+void PmergeMe::Sort(Container& container, SContainer& _containerMain, SContainer& _containerPending) {
+
+    //Start the clock to measure time
+    start = clock();
+
+    // step 1: Group the elements into pairs and fill the vector or deque
+    groupElementsIntoPairs(container, _containerMain);
 
     // step 2: Sort the two elements in each pair in the vector
-    sortPairsInContainer(_vector);
+    sortPairsInContainer(container);
 
     // step 3: Sort larger elements in the vector
-    sortContainer(_vector);
+    sortContainer(container);
 
     // step 4: split the Container into main container and pending container
-    splitContainer(_vector, _vectorMain, _vectorPending);
-
-    // step 5: generate Jacobsthal Sequence for insertion order
+    splitContainer(container, _containerMain, _containerPending);
 
     // step 6: insert the elements in the main container in the order of Jacobsthal Sequence
+    insertElement(_containerMain, _containerPending);
 
     // step 7 : add remaining element if exists
+    addRemainingElement(_containerMain);
+
+    //End the clock to measure time
+    end = clock();
 
 }
 
-
-void PmergeMe::printSortedValues() const 
-{
+template <typename Container>
+void PmergeMe::printSortedValues(const Container& container) const {
     std::cout << "After:   ";
-    for (std::vector<int>::const_iterator it = _vectorMain.begin(); it != _vectorMain.end(); ++it) {
+    for (typename Container::const_iterator it = container.begin(); it != container.end(); ++it) {
         std::cout << *it << " ";
     }
     std::cout << std::endl;
 }
 
+
 void PmergeMe::sort(int argc, char **argv) {
 
-    
-    groupElementsIntoPairs(argc, argv);
+    // Step 0: Check for parsing errors
+    parsingError(argc, argv);
     printUnsortedValues();
 
-    sortVector();
-    // sortDeque();
+    // other steps:
+    Sort(_vector, _vectorMain, _vectorPending);
 
-    printSortedValues();
+    // Print the sorted values
+    printSortedValues(_vectorMain);
 
-    // Example: Sort the vector and deque (actual sorting logic not implemented)
-    // std::sort(_list.begin(), _list.end());
+    //step 8: Print the time taken to sort the elements in vector
+    printtime(_vectorMain);
+
+
+    // Print the sorted values for deque
+    Sort(_deque, _dequeMain, _dequePending);
+    printtime(_dequeMain);
 
 }

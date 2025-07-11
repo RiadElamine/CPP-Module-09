@@ -4,21 +4,26 @@
 #include <deque>
 #include <iostream>
 #include <sstream>
+#include <ctime>
+#include <typeinfo>
 
 class PmergeMe 
 {
     private:
         std::vector<std::pair<int, int> > _vector;
-        std::vector<int > _vectorMain;
-        std::vector<int > _vectorPending;
+        std::vector<int > _vectorMain, _vectorPending;
         std::deque<std::pair<int, int> > _deque;
-        std::deque<int > _dequeMain;
-        std::deque<int > _dequePending;
+        std::deque<int > _dequeMain, _dequePending;
 
         int waitnum;
+        clock_t start, end;
 
-        void groupElementsIntoPairs(int argc, char* argv[]);
+        void parsingError(int argc, char* argv[]);
         void printUnsortedValues() const;
+
+
+        template <typename Container, typename SContainer>
+        void groupElementsIntoPairs(Container& container, SContainer& _scontainerMain);
 
         template <typename Container>
         void sortPairsInContainer(Container& container);
@@ -28,12 +33,26 @@ class PmergeMe
         template <typename Container>
         void merge(const Container& left, const Container& right, Container& result);
 
-       template <typename Container, typename SContainer>
+        template <typename Container, typename SContainer>
         void splitContainer(Container& container, SContainer& mainContainer, SContainer& pendingContainer);
 
-        void sortVector();
+        int generateJacobsthalIndex(int n);
+    
+        template <typename Container>
+        void insertElement(Container& mainContainer, Container& pendingContainer);
 
-        void printSortedValues() const;
+        template <typename Container>
+        void addRemainingElement(Container& mainContainer);
+
+        template <typename Container, typename SContainer>
+        void Sort(Container& container, SContainer& _containerMain, SContainer& _containerPending);
+
+        template <typename Container>
+        void printSortedValues(const Container& container) const;
+
+        template <typename Container>
+        void printtime(const Container& container) const;
+
 
     public:
         PmergeMe();
