@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BitcoinExchange.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: relamine <relamine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/27 09:35:42 by relamine          #+#    #+#             */
-/*   Updated: 2025/07/02 11:01:31 by marvin           ###   ########.fr       */
+/*   Updated: 2025/07/19 06:43:20 by relamine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,15 +141,7 @@ void BitcoinExchange::displayExchangeRates(const std::string &filename)
     std::stringstream   ss;
     std::string         line;
 
-    try
-    {
-        validateHeaderLine(filename, file, '|', "date ", " value");
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-    }
-    
+    validateHeaderLine(filename, file, '|', "date ", " value");
     for (; std::getline(file, line); )
     {
         if (line.empty())
@@ -170,7 +162,7 @@ void BitcoinExchange::displayExchangeRates(const std::string &filename)
                 std::cerr << "Error: not a positive number." << std::endl;
                 continue;
             }
-            if (exchange_rate > std::numeric_limits<int>::max())
+            if (exchange_rate > 1000.0 || exchange_rate < 0.0)
             {
                 std::cerr << "Error: too large a number." << std::endl;
                 continue;
