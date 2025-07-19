@@ -48,43 +48,41 @@ int RPN::Calcule(const std::string& expression) {
             if (!ss_num.eof()) {
                 throw std::invalid_argument("Invalid number: " + expr);
             }
+            if (num < 0 || num > 9) {
+                throw std::invalid_argument("Number out of range: " + expr);
+            }
             _stack.push(num);
             continue;
         }
-        else if ((expr.find_first_of("+-*/") == 0))
+        else if ((expr.find_first_of("+-*/") == 0) && _stack.size() >= 2)
         {
-            for (size_t i = 0; i < expr.size(); ++i) {
-                if (_stack.size() < 2) {
-                    throw std::invalid_argument("Not enough operands for operation: " + expr);
-                }
-                int b = _stack.top();
-                _stack.pop();
-                int a = _stack.top();
-                _stack.pop();
-                switch (expr[i]) {
-                    case '+': _stack.push(a + b); break;
-                    case '-': _stack.push(a - b); break;
-                    case '*': _stack.push(a * b); break;
-                    case '/':
-                    {
-                        if (b == 0) {
-                            throw std::invalid_argument("Division by zero error");
-                        }
-                        _stack.push((a / b));
-                        break;
-                    };
-                    default:
-                        throw std::invalid_argument("Invalid operator: " + expr);
-                }
+            int b = _stack.top();
+            _stack.pop();
+            int a = _stack.top();
+            _stack.pop();
+            switch (expr[0]) {
+                case '+': _stack.push(a + b); break;
+                case '-': _stack.push(a - b); break;
+                case '*': _stack.push(a * b); break;
+                default:
+                {
+                    if (b == 0) {
+                        throw std::invalid_argument("Division by zero error");
+                    }
+                    _stack.push((a / b));
+                    break;
+                };
             }
         }
         else
         {
             throw std::invalid_argument("Invalid token: " + expr);
         }
-        if (_stack.size() > 1) {
-            throw std::invalid_argument("Invalid :( Too many operands left in stack after evaluation");
-        }
     }
+
+    if (_stack.size() > 1) {
+        throw std::invalid_argument("Invalid :( Too many numbers left in stack");
+    }
+
     return (_stack.top());
 }
