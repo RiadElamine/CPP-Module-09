@@ -45,7 +45,11 @@ int RPN::Calcule(const std::string& expression) {
             if (!(ss_num >> num)) {
                 throw std::invalid_argument("Overflow or Undeflow error");
             }
+            if (!ss_num.eof()) {
+                throw std::invalid_argument("Invalid number: " + expr);
+            }
             _stack.push(num);
+            continue;
         }
         else if ((expr.find_first_of("+-*/") == 0))
         {
