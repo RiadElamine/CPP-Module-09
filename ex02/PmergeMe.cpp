@@ -33,7 +33,8 @@ PmergeMe &PmergeMe::operator=(const PmergeMe &other) {
     return *this;
 }
 
-void PmergeMe::parsingError(int argc, char* argv[]) {
+template <typename Container>
+void PmergeMe::parsingError(int argc, char* argv[], Container& _C, Container& _F) {
     
     if (argc < 2) {
         throw std::invalid_argument("At least one argument is required for sorting.");
@@ -47,10 +48,9 @@ void PmergeMe::parsingError(int argc, char* argv[]) {
         if (!(ss >> value) || !ss.eof() || value < 0) {
             throw std::invalid_argument("Invalid argument: " + std::string(argv[i]));
         }
-
-        _vectorMain.push_back(value);
-        _dequeMain.push_back(value);
+        _C.push_back(value);
     }
+    _F = _C;
 }
 
 // step 1: Parse the input arguments and group the elements into pairs and fill the vector and list
@@ -74,10 +74,10 @@ void PmergeMe::groupElementsIntoPairs(Container& container, SContainer& _scontai
     _scontainerMain.clear();
 }
 
-
-void PmergeMe::printUnsortedValues() const {
+template <typename Container>
+void PmergeMe::printUnsortedValues(const Container& container) const {
     std::cout << "Before:  ";
-    for (std::vector<int >::const_iterator it = _vectorMain.begin(); it != _vectorMain.end(); ++it) {
+    for (std::vector<int >::const_iterator it = container.begin(); it != container.end(); ++it) {
             std::cout << *it << " ";
     }
     std::cout << std::endl;   
@@ -226,8 +226,6 @@ void PmergeMe::printtime(const Container& container) const {
 template <typename Container, typename SContainer>
 void PmergeMe::Sort(Container& container, SContainer& _containerMain, SContainer& _containerPending) {
 
-    //Start the clock to measure time
-    start = clock();
 
     // step 1: Group the elements into pairs and fill the vector or deque
     groupElementsIntoPairs(container, _containerMain);
@@ -264,12 +262,18 @@ void PmergeMe::printSortedValues(const Container& container) const {
 
 void PmergeMe::sort(int argc, char **argv) {
 
-    // Step 0: Check for parsing errors
-    parsingError(argc, argv);
-    printUnsortedValues();
+    // printUnsortedValues();
 
+    //Start the clock to measure time
+    start = clock();
+    // Step 0: Check for parsing errors
+    parsingError(argc, argv, _vectorMain, _unsortedValuesVector);
     // other steps:
     Sort(_vector, _vectorMain, _vectorPending);
+
+
+    // Print the unsorted values
+    printUnsortedValues(_unsortedValuesVector);
 
     // Print the sorted values
     printSortedValues(_vectorMain);
@@ -278,8 +282,11 @@ void PmergeMe::sort(int argc, char **argv) {
     printtime(_vectorMain);
 
 
+    //Start the clock to measure time
+    start = clock();
+    // Step 0: Check for parsing errors
+    parsingError(argc, argv, _dequeMain, _unsortedValuesDeque);
     // Print the sorted values for deque
     Sort(_deque, _dequeMain, _dequePending);
     printtime(_dequeMain);
-
 }

@@ -15,11 +15,17 @@ class PmergeMe
         std::deque<std::pair<int, int> > _deque;
         std::deque<int > _dequeMain, _dequePending;
 
+        std::vector<int > _unsortedValuesVector;
+        std::deque<int > _unsortedValuesDeque;
+
         int waitnum;
         clock_t start, end;
 
-        void parsingError(int argc, char* argv[]);
-        void printUnsortedValues() const;
+        template <typename Container>
+        void parsingError(int argc, char* argv[], Container& _C, Container& _F);
+
+        template <typename Container>
+        void printUnsortedValues(const Container& container) const;
 
 
         template <typename Container, typename SContainer>
