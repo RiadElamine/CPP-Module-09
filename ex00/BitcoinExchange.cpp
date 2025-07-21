@@ -6,7 +6,7 @@
 /*   By: relamine <relamine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/27 09:35:42 by relamine          #+#    #+#             */
-/*   Updated: 2025/07/19 06:43:20 by relamine         ###   ########.fr       */
+/*   Updated: 2025/07/21 01:48:30 by relamine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ void BitcoinExchange::loadDataCsv(const std::string &filename)
     }
 
     if (exchangeRates.empty()) {
-        std::cerr << "No valid exchange rates found in file: " << filename << std::endl;
+        throw std::invalid_argument("No valid exchange rates found in file: " + filename);
     }
     
 }
