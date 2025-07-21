@@ -1,9 +1,37 @@
 
 #include "PmergeMe.hpp"
 
-PmergeMe::PmergeMe() {}
-PmergeMe::~PmergeMe() {}
+PmergeMe::PmergeMe()
+    : waitnum(-1), start(0), end(0) {}
 
+PmergeMe::~PmergeMe() {
+    _vector.clear();
+    _vectorMain.clear();
+    _vectorPending.clear();
+    _deque.clear();
+    _dequeMain.clear();
+    _dequePending.clear();
+}
+
+PmergeMe::PmergeMe(const PmergeMe &other) : _vector(other._vector), 
+    _vectorMain(other._vectorMain), _vectorPending(other._vectorPending),
+    _deque(other._deque), _dequeMain(other._dequeMain), _dequePending(other._dequePending),
+    waitnum(other.waitnum), start(other.start), end(other.end) {};
+
+PmergeMe &PmergeMe::operator=(const PmergeMe &other) {
+    if (this != &other) {
+        _vector = other._vector;
+        _vectorMain = other._vectorMain;
+        _vectorPending = other._vectorPending;
+        _deque = other._deque;
+        _dequeMain = other._dequeMain;
+        _dequePending = other._dequePending;
+        waitnum = other.waitnum;
+        start = other.start;
+        end = other.end;
+    }
+    return *this;
+}
 
 void PmergeMe::parsingError(int argc, char* argv[]) {
     
@@ -38,7 +66,6 @@ void PmergeMe::groupElementsIntoPairs(Container& container, SContainer& _scontai
         }
     }
 
-    waitnum = -1;
     if (container.back().second == -1) {
         waitnum = container.back().first;
         container.pop_back();
