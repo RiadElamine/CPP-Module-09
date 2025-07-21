@@ -6,7 +6,7 @@ OBJECT = $(SOURCE:.cpp=.o)
 
 HEARDER = BitcoinExchange.hpp
 
-CFLAGS = 
+CFLAGS = -Wall -Wextra -Werror -std=c++98
 
 all : $(NAME)
 

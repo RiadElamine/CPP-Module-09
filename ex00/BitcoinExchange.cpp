@@ -6,7 +6,7 @@
 /*   By: relamine <relamine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/27 09:35:42 by relamine          #+#    #+#             */
-/*   Updated: 2025/07/21 01:48:30 by relamine         ###   ########.fr       */
+/*   Updated: 2025/07/21 09:19:11 by relamine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,7 +155,7 @@ void BitcoinExchange::displayExchangeRates(const std::string &filename)
         std::string date;
         double exchange_rate;
 
-        if (std::getline(ss, date, '|') && ss >> space && ss >> exchange_rate && ss.eof())
+        if (std::getline(ss, date, '|') && ss >> space && space == ' ' && ss >> exchange_rate && ss.eof())
         {
             if (exchange_rate < 0)
             {
