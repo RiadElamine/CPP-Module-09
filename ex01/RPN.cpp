@@ -26,6 +26,30 @@ void addSpacesWithStream(const std::string& expression, std::stringstream &oss) 
     }
 }
 
+int RPN::makeOperation(long a, long b, char op) const {
+    
+    long result = 0;
+    switch (op) {
+        case '+': result = a + b; break;
+        case '-': result = a - b; break;
+        case '*': result = a * b; break;
+        default:
+        {
+            if (b == 0) {
+                throw std::invalid_argument("Division by zero error");
+            }
+            if (a == std::numeric_limits<int>::min() && b == -1) {
+                throw std::overflow_error("Overflow on division (INT_MIN / -1)");
+            }
+            return (static_cast<int>((a / b)));
+        };
+    }
+    if (result > std::numeric_limits<int>::max() || result < std::numeric_limits<int>::min())
+    {
+        throw std::overflow_error("Overflow or Underflow error");
+    }
+    return (static_cast<int>(result));
+}
 
 int RPN::Calcule(const std::string& expression) {
 
@@ -60,19 +84,8 @@ int RPN::Calcule(const std::string& expression) {
             _stack.pop();
             int a = _stack.top();
             _stack.pop();
-            switch (expr[0]) {
-                case '+': _stack.push(a + b); break;
-                case '-': _stack.push(a - b); break;
-                case '*': _stack.push(a * b); break;
-                default:
-                {
-                    if (b == 0) {
-                        throw std::invalid_argument("Division by zero error");
-                    }
-                    _stack.push((a / b));
-                    break;
-                };
-            }
+
+            _stack.push(makeOperation(a, b, expr[0]));
         }
         else
         {

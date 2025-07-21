@@ -14,7 +14,8 @@ class RPN
 
         int Calcule(const std::string& expression);
 
+
     private:
         std::stack<int> _stack;
-        bool isOperator(char c) const;
+        int makeOperation(long a, long b, char op) const;
 };
