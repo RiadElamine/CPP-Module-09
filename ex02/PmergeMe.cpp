@@ -11,11 +11,14 @@ PmergeMe::~PmergeMe() {
     _deque.clear();
     _dequeMain.clear();
     _dequePending.clear();
+    _unsortedValuesVector.clear();
+    _unsortedValuesDeque.clear();
 }
 
 PmergeMe::PmergeMe(const PmergeMe &other) : _vector(other._vector), 
     _vectorMain(other._vectorMain), _vectorPending(other._vectorPending),
     _deque(other._deque), _dequeMain(other._dequeMain), _dequePending(other._dequePending),
+    _unsortedValuesVector(other._unsortedValuesVector), _unsortedValuesDeque(other._unsortedValuesDeque),
     waitnum(other.waitnum), start(other.start), end(other.end) {};
 
 PmergeMe &PmergeMe::operator=(const PmergeMe &other) {
@@ -26,6 +29,8 @@ PmergeMe &PmergeMe::operator=(const PmergeMe &other) {
         _deque = other._deque;
         _dequeMain = other._dequeMain;
         _dequePending = other._dequePending;
+        _unsortedValuesVector = other._unsortedValuesVector;
+        _unsortedValuesDeque = other._unsortedValuesDeque;
         waitnum = other.waitnum;
         start = other.start;
         end = other.end;
@@ -216,11 +221,11 @@ void PmergeMe::addRemainingElement(Container& mainContainer) {
 //step 8: Print the time taken to sort the elements
 template <typename Container>
 void PmergeMe::printtime(const Container& container) const {
-    double time_taken = (static_cast<double>(end - start) / static_cast<double>(CLOCKS_PER_SEC)) * 100000.0 ; 
+    double time_taken = (static_cast<double>(end - start) / static_cast<double>(CLOCKS_PER_SEC)) * 1000000.0 ; 
     std::string container_type = std::string(typeid(container).name()).find("vector") != std::string::npos ? "vector" : "deque";
     std::cout << "Time to process a range of " << container.size() << " elements with std::"
                 << container_type
-                << " " << std::fixed << time_taken << " us" << std::endl;
+                << " " << std::fixed << time_taken << " µs" << std::endl;
 }
 
 template <typename Container, typename SContainer>
